@@ -14,7 +14,7 @@ services:
       - key: PYTHONPATH
         value: ./backend
       - key: MONGO_URI
-        sync: false
+        value: "mongodb+srv://rohan1252030019_db_user:ujueHALjuKvUjqsN@cluster0.pk3r1b3.mongodb.net/?appName=Cluster0"
       - key: MONGO_DB_NAME
         value: supplychaindb
       - key: AUTONOMOUS_APPROVAL_LIMIT_USD
