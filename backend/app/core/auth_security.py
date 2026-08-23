@@ -2,17 +2,14 @@
 app/core/auth_security.py
 
 JWT token creation/validation and password hashing for user auth.
-Uses HS256 JWT (via PyJWT) and bcrypt directly (avoiding buggy passlib wrappers).
-
-Never stores plain passwords. Tokens are short-lived; no refresh tokens
-in v1 to keep the implementation simple and auditable.
+Uses HS256 JWT (via PyJWT) and bcrypt directly.
 """
 
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 import bcrypt
+import jwt
 
-from jose import JWTError, jwt
 from app.config import settings
 
 # ── Password helpers using bcrypt directly ────────────────────────────────────
@@ -48,25 +45,18 @@ def create_access_token(
 ) -> str:
     """
     Create a signed JWT access token.
-
-    Args:
-        subject:  Unique user identifier (user_id / email)
-        role:     "admin" | "supplier" | "user"
-        extra:    Optional additional claims
-        expires_minutes: Override token TTL (defaults to settings.JWT_EXPIRE_MINUTES)
-
-    Returns:
-        Signed JWT string
     """
     if expires_minutes is None:
         expires_minutes = settings.JWT_EXPIRE_MINUTES
 
-    expire = datetime.now(timezone.utc) + timedelta(minutes=expires_minutes)
+    now_dt = datetime.now(timezone.utc)
+    expire_dt = now_dt + timedelta(minutes=expires_minutes)
+
     payload = {
         "sub": subject,
         "role": role,
-        "exp": expire,
-        "iat": datetime.now(timezone.utc),
+        "exp": int(expire_dt.timestamp()),
+        "iat": int(now_dt.timestamp()),
     }
     if extra:
         payload.update(extra)
@@ -77,28 +67,25 @@ def create_access_token(
 def decode_access_token(token: str) -> Optional[dict]:
     """
     Decode and validate a JWT access token.
-
-    Returns the payload dict on success, or None if the token is
-    invalid, expired, or tampered with.
     """
     try:
         payload = jwt.decode(token, settings.JWT_SECRET, algorithms=[ALGORITHM])
         return payload
-    except JWTError:
+    except Exception:
         return None
 
 
 def create_reset_token(email: str) -> str:
     """
     Create a short-lived (15 min) single-use password-reset token.
-    The 'purpose' claim prevents reset tokens from being used as access tokens.
     """
-    expire = datetime.now(timezone.utc) + timedelta(minutes=15)
+    now_dt = datetime.now(timezone.utc)
+    expire_dt = now_dt + timedelta(minutes=15)
     payload = {
         "sub": email,
         "purpose": "password_reset",
-        "exp": expire,
-        "iat": datetime.now(timezone.utc),
+        "exp": int(expire_dt.timestamp()),
+        "iat": int(now_dt.timestamp()),
     }
     return jwt.encode(payload, settings.JWT_SECRET, algorithm=ALGORITHM)
 
@@ -106,12 +93,11 @@ def create_reset_token(email: str) -> str:
 def decode_reset_token(token: str) -> Optional[str]:
     """
     Decode a password-reset token. Returns the email on success, None on failure.
-    Validates that the token has the 'password_reset' purpose claim.
     """
     try:
         payload = jwt.decode(token, settings.JWT_SECRET, algorithms=[ALGORITHM])
         if payload.get("purpose") != "password_reset":
             return None
         return payload.get("sub")
-    except JWTError:
+    except Exception:
         return None
