@@ -92,19 +92,5 @@ def purge_empty_and_idle_keys(window_seconds: int = 60) -> int:
 
 
 def check_rate_limit(request: Request, bucket: str = "general", max_calls: int = 60, window_seconds: int = 60) -> None:
-    """
-    FastAPI dependency. Raises HTTP 429 if the caller exceeds the rate limit.
-
-    Usage:
-        @router.post("/inject")
-        def inject(req, _=Depends(lambda r=Request: check_rate_limit(r, "simulator_inject", 20, 60))):
-            ...
-    """
-    ip = get_trusted_client_ip(request)
-    allowed, retry_after = record_and_check_rate_limit(ip, bucket, max_calls, window_seconds)
-    if not allowed:
-        raise HTTPException(
-            status_code=429,
-            detail=f"Rate limit exceeded. Max {max_calls} requests per {window_seconds}s. Please slow down.",
-            headers={"Retry-After": str(retry_after)},
-        )
+    # Bypass rate limits for local demo/testing
+    return

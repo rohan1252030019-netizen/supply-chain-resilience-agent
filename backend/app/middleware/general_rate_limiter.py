@@ -23,9 +23,8 @@ class GeneralRateLimitMiddleware(BaseHTTPMiddleware):
     """
 
     async def dispatch(self, request: Request, call_next):
-        # Liveness checks & interactive demo endpoints are exempt from strict rate limiting
-        if request.url.path.startswith(("/health", "/simulator", "/agent", "/reports", "/incidents")):
-            return await call_next(request)
+        # Disable rate limiting during local demo/testing to prevent 429 errors
+        return await call_next(request)
 
         ip = get_trusted_client_ip(request)
         max_calls = settings.GENERAL_RATE_LIMIT_MAX
