@@ -12,7 +12,8 @@ def _hash(plain: str) -> str:
 
 def run(db: Database) -> None:
     """Seeds the MongoDB with comprehensive realistic supply chain data."""
-    inventory_repo = InventoryRepository(db)
+    try:
+        inventory_repo = InventoryRepository(db)
 
     # Upserts below make startup additive: existing records are preserved while
     # missing demo records and newly introduced fields are backfilled.
@@ -2189,3 +2190,5 @@ def run(db: Database) -> None:
     print(f"   Recovery Plans:    {len(recovery_plans)} plans")
     print(f"   Audit Logs:        {len(audit_logs)} entries (pre-seeded)")
     print(f"   ERP Logs:          {len(erp_logs)} entries (pre-seeded)")
+    except Exception as err:
+        print(f"[Seed Warning] Skipping database seed (non-fatal): {err}")
