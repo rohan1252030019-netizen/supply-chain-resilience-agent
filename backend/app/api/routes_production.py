@@ -31,7 +31,10 @@ DEMO_PRODUCTION_ORDERS = [
     {
         "production_id": "PRD-101",
         "product": "EV Controller Unit Mk-IV",
+        "component_id": "CMP-004",
+        "component_per_unit": 2,
         "quantity": 450,
+        "priority": "HIGH",
         "status": "IN_PROGRESS",
         "due_date": "2026-09-05",
         "bom_component_ids": ["CMP-004", "CMP-003", "CMP-001", "CMP-007"]
@@ -39,7 +42,10 @@ DEMO_PRODUCTION_ORDERS = [
     {
         "production_id": "PRD-102",
         "product": "Smart Battery Management System (BMS-8S)",
+        "component_id": "CMP-004",
+        "component_per_unit": 4,
         "quantity": 1200,
+        "priority": "CRITICAL",
         "status": "STOPPED",
         "due_date": "2026-08-30",
         "bom_component_ids": ["CMP-004", "CMP-002", "CMP-017"]
@@ -47,7 +53,10 @@ DEMO_PRODUCTION_ORDERS = [
     {
         "production_id": "PRD-103",
         "product": "Industrial Motor Inverter 15kW",
+        "component_id": "CMP-006",
+        "component_per_unit": 6,
         "quantity": 300,
+        "priority": "MEDIUM",
         "status": "SCHEDULED",
         "due_date": "2026-09-12",
         "bom_component_ids": ["CMP-006", "CMP-005", "CMP-008", "CMP-014"]
@@ -55,7 +64,10 @@ DEMO_PRODUCTION_ORDERS = [
     {
         "production_id": "PRD-104",
         "product": "Precision Telemetry Gateway Router",
+        "component_id": "CMP-010",
+        "component_per_unit": 1,
         "quantity": 2500,
+        "priority": "HIGH",
         "status": "IN_PROGRESS",
         "due_date": "2026-09-02",
         "bom_component_ids": ["CMP-010", "CMP-013", "CMP-015"]
@@ -63,7 +75,10 @@ DEMO_PRODUCTION_ORDERS = [
     {
         "production_id": "PRD-105",
         "product": "Solar Power Optimizer 400W",
+        "component_id": "CMP-009",
+        "component_per_unit": 2,
         "quantity": 5000,
+        "priority": "LOW",
         "status": "COMPLETED",
         "due_date": "2026-08-20",
         "bom_component_ids": ["CMP-009", "CMP-011", "CMP-012"]
@@ -71,7 +86,10 @@ DEMO_PRODUCTION_ORDERS = [
     {
         "production_id": "PRD-106",
         "product": "High-Voltage DC Distribution Board",
+        "component_id": "CMP-004",
+        "component_per_unit": 8,
         "quantity": 180,
+        "priority": "CRITICAL",
         "status": "CRITICAL_PAUSE",
         "due_date": "2026-08-28",
         "bom_component_ids": ["CMP-004", "CMP-006", "CMP-016"]
@@ -79,7 +97,10 @@ DEMO_PRODUCTION_ORDERS = [
     {
         "production_id": "PRD-107",
         "product": "Autonomous Fleet Tracking Sensor Pod",
+        "component_id": "CMP-003",
+        "component_per_unit": 1,
         "quantity": 800,
+        "priority": "MEDIUM",
         "status": "SCHEDULED",
         "due_date": "2026-09-18",
         "bom_component_ids": ["CMP-003", "CMP-010", "CMP-015"]
@@ -87,7 +108,10 @@ DEMO_PRODUCTION_ORDERS = [
     {
         "production_id": "PRD-108",
         "product": "Smart Grid Power Meter Alpha",
+        "component_id": "CMP-001",
+        "component_per_unit": 10,
         "quantity": 3500,
+        "priority": "HIGH",
         "status": "IN_PROGRESS",
         "due_date": "2026-09-08",
         "bom_component_ids": ["CMP-001", "CMP-002", "CMP-011", "CMP-013"]

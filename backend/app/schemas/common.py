@@ -40,12 +40,14 @@ class ProductionOrderOut(BaseModel):
 
     production_id: str
     product: str
-    component_id: str
+    component_id: Optional[str] = "CMP-004"
     quantity: int
-    component_per_unit: int
+    component_per_unit: Optional[int] = 1
     deadline: Optional[datetime] = None
-    priority: str
+    due_date: Optional[str] = None
+    priority: Optional[str] = "HIGH"
     status: str
+    bom_component_ids: Optional[list[str]] = None
 
 
 class IncidentOut(BaseModel):
