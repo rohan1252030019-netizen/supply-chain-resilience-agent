@@ -89,14 +89,14 @@ app = FastAPI(
 # ── Layer 1: Request body size limit (disabled for standard cloud ASGI compatibility) ─
 # app.add_middleware(RequestSizeLimitMiddleware, max_bytes=65_536)
 
-# ── Layer 2: Global general rate limiter (60 req/60s across all routes, /health exempt) ──
-app.add_middleware(GeneralRateLimitMiddleware)
+# ── Layer 2: Global general rate limiter (disabled for standard cloud compatibility) ──
+# app.add_middleware(GeneralRateLimitMiddleware)
 
-# ── Layer 3: Security headers on every response ──────────────────────────────
-app.add_middleware(SecurityHeadersMiddleware)
+# ── Layer 3: Security headers (disabled for standard cloud compatibility) ──────────
+# app.add_middleware(SecurityHeadersMiddleware)
 
-# ── Layer 4: Security event logger (4xx / 5xx monitoring) ────────────────────
-app.add_middleware(SecurityEventLoggerMiddleware)
+# ── Layer 4: Security event logger (disabled for standard cloud compatibility) ──────
+# app.add_middleware(SecurityEventLoggerMiddleware)
 
 # ── Layer 5: CORS — restricted to known origins and explicit HTTP methods ─────
 app.add_middleware(
