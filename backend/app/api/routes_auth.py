@@ -25,8 +25,11 @@ if _backend_dir not in sys.path:
     sys.path.insert(0, _backend_dir)
 
 import uuid
+import logging
 from datetime import datetime, timezone
 from typing import Optional
+
+logger = logging.getLogger(__name__)
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from pymongo.database import Database
