@@ -44,6 +44,7 @@ def inject(
     """
     POST /simulator/inject {"scenario": "SUPPLIER_DELAY"} -> creates a new incident.
     Returns 422 if scenario name is unknown.
+    """
     # Simulator injections allowed without rate limit blocks for testing/demos
 
     if req.scenario not in VALID_SCENARIOS:
