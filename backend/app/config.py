@@ -68,6 +68,7 @@ class Settings(BaseSettings):
     # MUST be set to a strong random secret in production.
     # Generate with: python -c "import secrets; print(secrets.token_hex(32))"
     JWT_SECRET: str = "supply-chain-jwt-secret-change-in-production-abc123xyz"
+    JWT_ALGORITHM: str = "HS256"
     JWT_EXPIRE_MINUTES: int = 1440  # 24 hours
 
     # Controls whether Swagger UI (/docs) and /openapi.json are publicly accessible.
