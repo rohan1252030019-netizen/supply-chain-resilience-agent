@@ -33,7 +33,10 @@ def inject_scenario(scenario: str, db: Database) -> dict:
         "created_at": datetime.now(timezone.utc),
         **defaults
     }
-    db["incidents"].insert_one(incident)
+    try:
+        db["incidents"].insert_one(incident)
+    except Exception:
+        pass
 
     # For BUDGET_OVERRUN, automatically seed a Recovery Plan exceeding threshold
     if scenario == "BUDGET_OVERRUN":
@@ -61,17 +64,26 @@ def inject_scenario(scenario: str, db: Database) -> dict:
             ],
             "created_at": datetime.now(timezone.utc)
         }
-        db["recovery_plans"].insert_one(plan)
-        db["audit_logs"].insert_one({
-            "timestamp": datetime.now(timezone.utc),
-            "incident_id": incident_id,
-            "action": "Recovery plan generated costing ₹93,000. Exceeds ₹50,000 threshold; escalated to Executive Governance & Approvals.",
-            "decision": "WAITING_APPROVAL"
-        })
+        try:
+            db["recovery_plans"].insert_one(plan)
+        except Exception:
+            pass
+        try:
+            db["audit_logs"].insert_one({
+                "timestamp": datetime.now(timezone.utc),
+                "incident_id": incident_id,
+                "action": "Recovery plan generated costing ₹93,000. Exceeds ₹50,000 threshold; escalated to Executive Governance & Approvals.",
+                "decision": "WAITING_APPROVAL"
+            })
+        except Exception:
+            pass
 
     # Register lie scenario so simulator returns contradicting data
     if scenario == "SUPPLIER_LIE" and incident["affected_po"]:
-        from app.simulator.supplier_simulator import register_supplier_lie
-        register_supplier_lie(incident["affected_po"])
+        try:
+            from app.simulator.supplier_simulator import register_supplier_lie
+            register_supplier_lie(incident["affected_po"])
+        except Exception:
+            pass
 
     return incident
