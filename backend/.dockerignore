@@ -32,6 +32,6 @@ env/
 .env.*
 !.env.example
 *.log
-*.txt
+!requirements.txt
 .git
 .gitignore

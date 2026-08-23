@@ -23,6 +23,7 @@ email-validator>=2.0.0
 # Authentication & Security
 bcrypt>=4.0.0
 python-jose[cryptography]>=3.3.0
+PyJWT>=2.8.0
 motor>=3.0.0
 
 # Testing
