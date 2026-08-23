@@ -14,7 +14,7 @@ from datetime import datetime
 
 
 class InventoryOut(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(from_attributes=True, extra="ignore")
 
     component_id: str
     current_stock: int
@@ -25,7 +25,7 @@ class InventoryOut(BaseModel):
 
 
 class SupplierOut(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(from_attributes=True, extra="ignore")
 
     supplier_id: str
     name: str
@@ -36,7 +36,7 @@ class SupplierOut(BaseModel):
 
 
 class ProductionOrderOut(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(from_attributes=True, extra="ignore")
 
     production_id: str
     product: str
@@ -49,7 +49,7 @@ class ProductionOrderOut(BaseModel):
 
 
 class IncidentOut(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(from_attributes=True, extra="ignore")
 
     incident_id: str
     type: str
@@ -61,7 +61,7 @@ class IncidentOut(BaseModel):
 
 
 class AuditLogOut(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(from_attributes=True, extra="ignore")
 
     timestamp: datetime
     incident_id: Optional[str] = None
