@@ -139,6 +139,17 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     )
 
 
+@app.get("/")
+def root():
+    """Root endpoint providing service overview and documentation links."""
+    return {
+        "status": "active",
+        "service": "Supply Chain Disruption Control Agent API Engine",
+        "docs": "/docs",
+        "health": "/health"
+    }
+
+
 @app.get("/health")
 def health():
     """Simple liveness check. Does not expose version or internal state."""
