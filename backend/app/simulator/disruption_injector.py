@@ -1,15 +1,3 @@
-"""
-app/simulator/disruption_injector.py
-Owner: Developer 2 (Backend / Simulation)
-
-Implements the "Disruption Simulator" buttons (team doc Section 18) by writing a
-new row into `incidents`. This is the entry point that starts the whole agent
-pipeline for a demo.
-
-RECEIVES: a scenario name string from api/routes_simulator.py
-DELIVERS: a new Incident row, status=DETECTED, ready for the agent loop to pick up
-"""
-
 import uuid
 from datetime import datetime, timezone
 from pymongo.database import Database
@@ -30,14 +18,56 @@ SCENARIO_DEFAULTS = {
 
 def inject_scenario(scenario: str, db: Database) -> dict:
     """
-    Creates a new Incident row for the given scenario.
-    Raises KeyError if scenario is unknown (caller in routes_simulator.py validates first).
-    For SUPPLIER_LIE: registers the affected PO so supplier_simulator returns
-    contradicting data (dispatch claim vs NO_PICKUP_SCAN tracking status).
+    Creates a new Incident row for the given scenario and seeds recovery plan & audit log.
+    For BUDGET_OVERRUN / Autonomous Threshold Escalation:
+      - Sets status = WAITING_APPROVAL
+      - Creates Recovery Plan costing ₹93,000 (exceeding ₹50,000 threshold)
     """
     defaults = SCENARIO_DEFAULTS[scenario]
-    incident = {"incident_id": f"INC-{uuid.uuid4().hex[:6].upper()}", "status": "DETECTED", "created_at": datetime.now(timezone.utc), **defaults}
+    incident_id = f"INC-{uuid.uuid4().hex[:6].upper()}"
+    status = "WAITING_APPROVAL" if scenario == "BUDGET_OVERRUN" else "DETECTED"
+
+    incident = {
+        "incident_id": incident_id,
+        "status": status,
+        "created_at": datetime.now(timezone.utc),
+        **defaults
+    }
     db["incidents"].insert_one(incident)
+
+    # For BUDGET_OVERRUN, automatically seed a Recovery Plan exceeding threshold
+    if scenario == "BUDGET_OVERRUN":
+        plan = {
+            "incident_id": incident_id,
+            "approval_threshold_usd": 50000,
+            "recommended_option_id": "A",
+            "recommendation_reason": "Expedited air-freight batch from secondary vendor SUP-002 prevents line stoppage, but total cost ₹93,000 exceeds ₹50,000 limit.",
+            "requires_human_approval": True,
+            "options": [
+                {
+                    "option_id": "A",
+                    "total_cost": 93000,
+                    "max_delivery_days": 7,
+                    "constraints_satisfied": True,
+                    "allocation": {"SUP-002": 1000}
+                },
+                {
+                    "option_id": "B",
+                    "total_cost": 45000,
+                    "max_delivery_days": 21,
+                    "constraints_satisfied": False,
+                    "rejection_reason": "21-day lead time exceeds assembly runway limit of 5 days"
+                }
+            ],
+            "created_at": datetime.now(timezone.utc)
+        }
+        db["recovery_plans"].insert_one(plan)
+        db["audit_logs"].insert_one({
+            "timestamp": datetime.now(timezone.utc),
+            "incident_id": incident_id,
+            "action": "Recovery plan generated costing ₹93,000. Exceeds ₹50,000 threshold; escalated to Executive Governance & Approvals.",
+            "decision": "WAITING_APPROVAL"
+        })
 
     # Register lie scenario so simulator returns contradicting data
     if scenario == "SUPPLIER_LIE" and incident["affected_po"]:

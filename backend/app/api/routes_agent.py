@@ -26,7 +26,7 @@ from pymongo.database import Database
 from app.mongo_database import get_mongo_db
 from app.agent.agent_loop import run_agent_for_incident, get_agent_state
 from app.agent.states import AgentState
-from app.middleware.security import require_api_key
+from app.middleware.security import require_api_key_or_user
 from app.middleware.rate_limiter import check_rate_limit
 
 from app.config import settings
@@ -65,7 +65,7 @@ def trigger_agent(
     req: TriggerRequest,
     request: Request,
     db: Database = Depends(get_mongo_db),
-    _auth: None = Depends(require_api_key),
+    _auth: None = Depends(require_api_key_or_user),
 ):
     """
     Kick off (or resume) the agent loop for a given incident.
@@ -109,7 +109,7 @@ def approve_plan(
     decision: ApprovalDecision,
     request: Request,
     db: Database = Depends(get_mongo_db),
-    _auth: None = Depends(require_api_key),
+    _auth: None = Depends(require_api_key_or_user),
 ):
     """
     Coordinator approves the recommended recovery plan.
@@ -135,7 +135,7 @@ def reject_plan(
     decision: ApprovalDecision,
     request: Request,
     db: Database = Depends(get_mongo_db),
-    _auth: None = Depends(require_api_key),
+    _auth: None = Depends(require_api_key_or_user),
 ):
     """
     On rejection, trigger REPLANNING state with 'human rejected' as context.

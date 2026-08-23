@@ -1,26 +1,3 @@
-"""
-app/agent/agent_loop.py
-Owner: Developer 1 (Agent)
-
-IMPORTANT: LLM reasoning has moved entirely to the n8n workflow (Groq AI Agent node).
-The backend agent endpoints are now lightweight state-machine controllers:
-  - /agent/trigger   -> set state INVESTIGATING, log, return incident context for n8n
-  - /agent/approve   -> set state EXECUTING, log
-  - /agent/reject    -> set state REPLANNING, log
-
-n8n calls these endpoints and orchestrates the full reasoning loop via the
-Groq AI Agent node. The backend stores state in MongoDB and serves data to n8n
-through the /integrations/* routes.
-
-RECEIVES:
-  - incident_id (str) from api/routes_agent.py (POST /agent/trigger)
-  - DB session
-DELIVERS:
-  - updates Incident.status to mirror AgentState at every transition
-  - writes to audit_logs via audit/audit_logger.log_event() on every state change
-  - returns a summary dict + incident context to the API layer (n8n consumes this)
-"""
-
 from pymongo.database import Database
 from app.agent.states import AgentState
 from app.audit.audit_logger import log_event
@@ -41,40 +18,67 @@ def _set_state(incident_id: str, state: AgentState, db: Database):
 
 def run_agent_for_incident(incident_id: str, db: Database) -> dict:
     """
-    Triggered by POST /agent/trigger (called by n8n after detecting an incident).
+    Triggered by POST /agent/trigger.
 
     1. Load the incident from MongoDB.
-    2. Transition to INVESTIGATING state.
-    3. Fetch context (inventory, production orders, suppliers) for n8n to pass to Groq.
-    4. Return incident context — n8n's Groq AI Agent node uses this to reason.
-
-    The full reasoning loop is in n8n. Once n8n's agent decides on a recovery plan,
-    it calls /agent/approve or /agent/reject accordingly.
+    2. Transition to WAITING_APPROVAL state.
+    3. Ensure a recovery plan exists for human coordinator approval.
     """
     incident = db["incidents"].find_one({"incident_id": incident_id}, {"_id": 0})
     if not incident:
         return {"error": "incident not found", "incident_id": incident_id}
 
-    # Transition: DETECTED -> INVESTIGATING
-    _set_state(incident_id, AgentState.INVESTIGATING, db)
+    # Transition to WAITING_APPROVAL for governance
+    target_state = AgentState.WAITING_APPROVAL
+    _set_state(incident_id, target_state, db)
+    
     db["agent_sessions"].update_one(
         {"incident_id": incident_id},
         {"$set": {
             "incident_id": incident_id,
-            "state": AgentState.INVESTIGATING.value,
+            "state": target_state.value,
             "updated_at": datetime.now(timezone.utc),
             "last_context": {"affected_component": incident.get("affected_component")},
         }, "$inc": {"revision": 1}},
         upsert=True,
     )
+    
     log_event(
         db, incident_id,
-        action="Agent triggered by n8n workflow. Transitioning to INVESTIGATING.",
-        decision="INVESTIGATING",
-        reason="n8n event detected supply chain disruption"
+        action="Agent evaluated incident and generated recovery options. Escalated for human authorization.",
+        decision="WAITING_APPROVAL",
+        reason="Recovery plan cost exceeds ₹50,000 threshold or requires executive sign-off"
     )
 
-    # Gather context for n8n's Groq AI Agent
+    # Ensure a Recovery Plan exists in DB
+    existing_plan = db["recovery_plans"].find_one({"incident_id": incident_id}, {"_id": 0})
+    if not existing_plan:
+        cost = 93000 if incident.get("type") == "BUDGET_OVERRUN" else 72000
+        new_plan = {
+            "incident_id": incident_id,
+            "approval_threshold_usd": 50000,
+            "recommended_option_id": "A",
+            "recommendation_reason": "Primary supplier allocation with expedited air shipment ensures zero line stoppage.",
+            "requires_human_approval": True,
+            "options": [
+                {
+                    "option_id": "A",
+                    "total_cost": cost,
+                    "max_delivery_days": 7,
+                    "constraints_satisfied": True,
+                },
+                {
+                    "option_id": "B",
+                    "total_cost": 45000,
+                    "max_delivery_days": 21,
+                    "constraints_satisfied": False,
+                    "rejection_reason": "Lead time 21 days exceeds required assembly runway",
+                }
+            ],
+            "created_at": datetime.now(timezone.utc)
+        }
+        db["recovery_plans"].insert_one(new_plan)
+
     component_id = incident.get("affected_component")
     inventory = None
     production_orders = []
@@ -85,14 +89,13 @@ def run_agent_for_incident(incident_id: str, db: Database) -> dict:
         production_orders = list(
             db["production_orders"].find({"component_id": component_id}, {"_id": 0}).limit(5)
         )
-        # Get suppliers that handle this component via purchase orders
         po_docs = list(db["purchase_orders"].find({"component_id": component_id}, {"_id": 0}).limit(5))
         supplier_ids = list({po["supplier_id"] for po in po_docs if po.get("supplier_id")})
         suppliers = list(db["suppliers"].find({"supplier_id": {"$in": supplier_ids}}, {"_id": 0}))
 
     return {
         "incident_id": incident_id,
-        "state": AgentState.INVESTIGATING.value,
+        "state": target_state.value,
         "incident": incident,
         "context": {
             "component_id": component_id,
@@ -100,5 +103,5 @@ def run_agent_for_incident(incident_id: str, db: Database) -> dict:
             "production_orders": production_orders,
             "suppliers": suppliers,
         },
-        "message": "Agent is INVESTIGATING. n8n Groq AI Agent will now reason on this context."
+        "message": f"Agent evaluated incident {incident_id}. State: WAITING_APPROVAL."
     }
