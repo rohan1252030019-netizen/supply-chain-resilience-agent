@@ -9,7 +9,11 @@ Uses MongoDB Atlas (or local) depending on MONGO_URI in .env.
 from pymongo import MongoClient
 from app.config import settings
 
-client = MongoClient(settings.MONGO_URI, serverSelectionTimeoutMS=300)
+client = MongoClient(
+    settings.MONGO_URI,
+    serverSelectionTimeoutMS=300,
+    tlsAllowInvalidCertificates=True,
+)
 db = client[settings.MONGO_DB_NAME]
 
 
