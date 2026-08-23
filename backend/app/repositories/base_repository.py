@@ -12,15 +12,26 @@ class BaseRepository:
         self.collection = db[collection_name]
 
     def list_all(self) -> list[dict]:
-        # Remove _id from results to keep it clean
-        return list(self.collection.find({}, {"_id": 0}))
+        try:
+            return list(self.collection.find({}, {"_id": 0}))
+        except Exception:
+            return []
 
     def get_by_field(self, field_name: str, value: str) -> dict:
-        return self.collection.find_one({field_name: value}, {"_id": 0})
+        try:
+            return self.collection.find_one({field_name: value}, {"_id": 0})
+        except Exception:
+            return None
 
     def insert(self, data: dict):
-        result = self.collection.insert_one(data)
-        return {**data, "_id": str(result.inserted_id)}
+        try:
+            result = self.collection.insert_one(data)
+            return {**data, "_id": str(result.inserted_id)}
+        except Exception:
+            return data
 
     def update(self, filter_query: dict, update_data: dict):
-        self.collection.update_one(filter_query, {"$set": update_data}, upsert=True)
+        try:
+            self.collection.update_one(filter_query, {"$set": update_data}, upsert=True)
+        except Exception:
+            pass
