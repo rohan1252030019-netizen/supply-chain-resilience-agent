@@ -26,6 +26,14 @@ SECURITY LAYERS (all non-breaking):
   Layer 9 — API Key dependency         : opt-in via settings.API_KEY on mutating endpoints
 """
 
+import sys
+import os
+
+# Ensure backend directory is always in sys.path regardless of execution CWD
+_backend_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+if _backend_dir not in sys.path:
+    sys.path.insert(0, _backend_dir)
+
 from contextlib import asynccontextmanager
 import logging
 from datetime import datetime, timezone
@@ -79,14 +87,14 @@ app = FastAPI(
 # ── Layer 1: Request body size limit (disabled for standard cloud ASGI compatibility) ─
 # app.add_middleware(RequestSizeLimitMiddleware, max_bytes=65_536)
 
-# ── Layer 2: Global general rate limiter (disabled for standard cloud compatibility) ──
-# app.add_middleware(GeneralRateLimitMiddleware)
+# ── Layer 2: Global general rate limiter (60 req/60s across all routes, /health exempt) ──
+app.add_middleware(GeneralRateLimitMiddleware)
 
-# ── Layer 3: Security headers (disabled for standard cloud compatibility) ──────────
-# app.add_middleware(SecurityHeadersMiddleware)
+# ── Layer 3: Security headers on every response ──────────────────────────────
+app.add_middleware(SecurityHeadersMiddleware)
 
-# ── Layer 4: Security event logger (disabled for standard cloud compatibility) ──────
-# app.add_middleware(SecurityEventLoggerMiddleware)
+# ── Layer 4: Security event logger (4xx / 5xx monitoring) ────────────────────
+app.add_middleware(SecurityEventLoggerMiddleware)
 
 # ── Layer 5: CORS — restricted to known origins and explicit HTTP methods ─────
 app.add_middleware(
