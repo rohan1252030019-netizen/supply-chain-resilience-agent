@@ -23,8 +23,8 @@ class GeneralRateLimitMiddleware(BaseHTTPMiddleware):
     """
 
     async def dispatch(self, request: Request, call_next):
-        # Liveness checks (/health) are exempt from rate limiting
-        if request.url.path == "/health":
+        # Liveness checks & interactive demo endpoints are exempt from strict rate limiting
+        if request.url.path.startswith(("/health", "/simulator", "/agent", "/reports", "/incidents")):
             return await call_next(request)
 
         ip = get_trusted_client_ip(request)
