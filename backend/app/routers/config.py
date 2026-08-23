@@ -22,7 +22,13 @@ ERROR HANDLING:
       FastAPI's global validation handler in main.py).
 """
 
+import sys
+import os
 import logging
+
+_backend_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+if _backend_dir not in sys.path:
+    sys.path.insert(0, _backend_dir)
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException

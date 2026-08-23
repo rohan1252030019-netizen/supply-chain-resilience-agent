@@ -6,6 +6,16 @@ RECEIVES: rows written by app/audit/audit_logger.py (called from every tool + ag
 DELIVERS: chronological timeline to the frontend Audit page (docs Section 17)
 """
 
+import sys
+import os
+import logging
+
+_backend_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+if _backend_dir not in sys.path:
+    sys.path.insert(0, _backend_dir)
+
+logger = logging.getLogger(__name__)
+
 from datetime import datetime, timezone
 import io
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
