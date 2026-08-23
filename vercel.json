@@ -1,11 +1,66 @@
 {
-  "buildCommand": "cd frontend && npm install && npm run build",
-  "outputDirectory": "frontend/dist",
-  "framework": "vite",
-  "rewrites": [
+  "version": 2,
+  "builds": [
     {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "src": "api/index.py",
+      "use": "@vercel/python"
+    },
+    {
+      "src": "frontend/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/health",
+      "dest": "api/index.py"
+    },
+    {
+      "src": "/docs",
+      "dest": "api/index.py"
+    },
+    {
+      "src": "/openapi.json",
+      "dest": "api/index.py"
+    },
+    {
+      "src": "/simulator/(.*)",
+      "dest": "api/index.py"
+    },
+    {
+      "src": "/agent/(.*)",
+      "dest": "api/index.py"
+    },
+    {
+      "src": "/incidents/(.*)",
+      "dest": "api/index.py"
+    },
+    {
+      "src": "/reports/(.*)",
+      "dest": "api/index.py"
+    },
+    {
+      "src": "/inventory/(.*)",
+      "dest": "api/index.py"
+    },
+    {
+      "src": "/suppliers/(.*)",
+      "dest": "api/index.py"
+    },
+    {
+      "src": "/production-orders/(.*)",
+      "dest": "api/index.py"
+    },
+    {
+      "src": "/auth/(.*)",
+      "dest": "api/index.py"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "frontend/$1"
     }
   ]
 }
