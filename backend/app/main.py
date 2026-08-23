@@ -100,10 +100,11 @@ app.add_middleware(SecurityEventLoggerMiddleware)
 # ── Layer 5: CORS — restricted to known origins and explicit HTTP methods ─────
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.cors_origin_list,
+    allow_origins=["*"],
+    allow_origin_regex=r"https?://.*",
     allow_credentials=True,
-    allow_methods=settings.cors_allowed_methods_list,
-    allow_headers=["Content-Type", "Accept", "X-API-Key", "Authorization"],
+    allow_methods=["*"],
+    allow_headers=["*"],
     expose_headers=["Set-Cookie"],
 )
 

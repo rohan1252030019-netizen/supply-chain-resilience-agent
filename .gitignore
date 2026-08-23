@@ -55,3 +55,4 @@ N8N/
 *.pem
 *.key
 secrets/
+.vercel
