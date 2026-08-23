@@ -1,14 +1,21 @@
 services:
   - type: web
     name: scda-fastapi-backend
-    env: python
+    runtime: python
     region: oregon
+    plan: free
     buildCommand: pip install -r backend/requirements.txt
-    startCommand: cd backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    startCommand: uvicorn backend.app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    autoDeploy: true
     envVars:
+      - key: PYTHONPATH
+        value: ./backend
       - key: MONGO_URI
         sync: false
       - key: MONGO_DB_NAME
         value: supplychaindb
       - key: AUTONOMOUS_APPROVAL_LIMIT_USD
         value: "50000"
+      - key: DOCS_ENABLED
+        value: "true"
