@@ -56,8 +56,8 @@ def list_inventory(
     try:
         repo = InventoryRepository(db)
         rows = repo.list_all()
-    except Exception:
-        pass
+    except BaseException:
+        rows = DEMO_INVENTORY
 
     if not rows:
         rows = DEMO_INVENTORY

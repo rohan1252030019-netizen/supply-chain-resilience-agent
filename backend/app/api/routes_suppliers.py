@@ -78,8 +78,8 @@ def list_suppliers(
             single = repo.get_by_supplier_id(supplier_id)
             return [single] if single else [DEMO_SUPPLIERS[0]]
         results = repo.list_all()
-    except Exception:
-        pass
+    except BaseException:
+        results = DEMO_SUPPLIERS
 
     return results if results else DEMO_SUPPLIERS
 

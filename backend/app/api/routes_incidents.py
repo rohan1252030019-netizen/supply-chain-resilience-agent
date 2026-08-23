@@ -123,8 +123,8 @@ def list_incidents(
             query["type"] = {"$ne": "DATA_INCONSISTENCY"}
 
         results = list(db["incidents"].find(query, {"_id": 0}).sort("created_at", -1))
-    except Exception:
-        pass
+    except BaseException:
+        results = DEMO_INCIDENTS
 
     return results if results else DEMO_INCIDENTS
 

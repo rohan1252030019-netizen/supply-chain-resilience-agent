@@ -113,8 +113,8 @@ def list_audit_logs(
             results = repo.get_by_incident_id(incident_id)
         else:
             results = repo.list_all()
-    except Exception:
-        pass
+    except BaseException:
+        results = DEMO_AUDIT_LOGS
 
     return results if results else DEMO_AUDIT_LOGS
 

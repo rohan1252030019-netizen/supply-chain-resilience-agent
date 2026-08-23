@@ -144,8 +144,8 @@ def get_plan(
     plan = None
     try:
         plan = db["recovery_plans"].find_one({"incident_id": incident_id}, {"_id": 0})
-    except Exception:
-        pass
+    except BaseException:
+        plan = None
 
     if not plan:
         demo_copy = dict(DEMO_RECOVERY_PLAN)
