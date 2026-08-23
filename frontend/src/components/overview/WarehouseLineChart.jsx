@@ -1,5 +1,32 @@
 import { useRef, useState, useEffect } from "react";
 
+const RANGE_DATA = {
+  "7D": {
+    xLabels: ["Day 1", "Day 2", "Day 3", "Day 4", "Day 5", "Day 6", "Day 7"],
+    warehouseLoadPath: "M 50,150 Q 120,60 190,110 T 330,130 T 470,80",
+    productDeliveriesPath: "M 50,160 Q 120,130 190,145 T 330,100 T 470,120",
+    rawMaterialPath: "M 50,140 Q 120,110 190,125 T 330,80 T 470,60",
+  },
+  "30D": {
+    xLabels: ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11"],
+    warehouseLoadPath: "M 50,164 Q 75,100 97,105 T 144,115 T 191,135 T 238,148 T 285,160 T 332,168 T 379,155 T 426,148 T 473,135 T 520,105",
+    productDeliveriesPath: "M 50,164 Q 75,160 97,150 T 144,160 T 191,150 T 238,140 T 285,130 T 332,145 T 379,135 T 426,130 T 473,115 T 520,135",
+    rawMaterialPath: "M 50,164 Q 75,135 97,140 T 144,155 T 191,145 T 238,130 T 285,115 T 332,140 T 379,150 T 426,155 T 473,110 T 520,100",
+  },
+  "90D": {
+    xLabels: ["W1", "W2", "W3", "W4", "W5", "W6", "W7", "W8", "W9", "W10", "W12"],
+    warehouseLoadPath: "M 50,120 Q 100,70 150,90 T 250,140 T 350,110 T 450,75 T 520,95",
+    productDeliveriesPath: "M 50,145 Q 100,120 150,130 T 250,90 T 350,130 T 450,100 T 520,115",
+    rawMaterialPath: "M 50,135 Q 100,90 150,110 T 250,70 T 350,95 T 450,55 T 520,70",
+  },
+  "YTD": {
+    xLabels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug"],
+    warehouseLoadPath: "M 50,140 Q 110,85 170,100 T 290,135 T 410,95 T 520,70",
+    productDeliveriesPath: "M 50,155 Q 110,135 170,120 T 290,80 T 410,110 T 520,125",
+    rawMaterialPath: "M 50,130 Q 110,100 170,115 T 290,65 T 410,85 T 520,50",
+  },
+};
+
 export default function WarehouseLineChart() {
   const [showFilterMenu, setShowFilterMenu] = useState(false);
   const [showOptionsMenu, setShowOptionsMenu] = useState(false);
@@ -23,16 +50,17 @@ export default function WarehouseLineChart() {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  const xLabels = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11"];
+  const currentConfig = RANGE_DATA[activeRange] || RANGE_DATA["30D"];
   const yLabels = [200, 150, 100, 50, 0];
 
   const handleExportCsv = () => {
-    const csvContent = "data:text/csv;charset=utf-8,Day,Raw Material,Product Deliveries,Warehouse Load\n" +
-      xLabels.map((l, i) => `${l},${30 + i * 5},${20 + i * 8},${60 + i * 3}`).join("\n");
+    const csvContent =
+      "data:text/csv;charset=utf-8,Period,Raw Material,Product Deliveries,Warehouse Load\n" +
+      currentConfig.xLabels.map((l, i) => `${l},${30 + i * 5},${20 + i * 8},${60 + i * 3}`).join("\n");
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "warehouse-workload-data.csv");
+    link.setAttribute("download", `warehouse-workload-${activeRange.toLowerCase()}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -48,8 +76,8 @@ export default function WarehouseLineChart() {
       <div className="card-header-row">
         <div>
           <span className="card-header-title">Warehouse workload</span>
-          <span style={{ fontSize: 11, color: "var(--text-muted)", marginLeft: 8 }}>
-            ({activeRange})
+          <span style={{ fontSize: 11, color: "var(--primary)", fontWeight: 700, marginLeft: 8, background: "rgba(37,99,235,0.08)", padding: "2px 8px", borderRadius: 12 }}>
+            {activeRange}
           </span>
         </div>
         <div className="card-header-actions" style={{ position: "relative", display: "flex", gap: 6 }}>
@@ -87,10 +115,10 @@ export default function WarehouseLineChart() {
                       key={range}
                       onClick={() => { setActiveRange(range); setShowFilterMenu(false); }}
                       style={{
-                        flex: 1, padding: "5px 0", borderRadius: 6, border: "1px solid var(--border-subtle)",
+                        flex: 1, padding: "6px 0", borderRadius: 8, border: "1px solid var(--border-subtle)",
                         background: activeRange === range ? "var(--primary)" : "#F8FAFC",
                         color: activeRange === range ? "#FFFFFF" : "var(--text-primary)",
-                        fontWeight: 600, fontSize: 11, cursor: "pointer",
+                        fontWeight: 700, fontSize: 11, cursor: "pointer", transition: "all 0.15s ease",
                       }}
                     >
                       {range}
@@ -203,11 +231,12 @@ export default function WarehouseLineChart() {
             );
           })}
 
-          {/* Vertical dashed grid lines & X-axis labels */}
-          {xLabels.map((lbl, idx) => {
-            const x = 50 + idx * 47;
+          {/* Vertical dashed grid lines & Dynamic X-axis labels */}
+          {currentConfig.xLabels.map((lbl, idx) => {
+            const step = (530 - 50) / Math.max(1, currentConfig.xLabels.length - 1);
+            const x = 50 + idx * step;
             return (
-              <g key={lbl}>
+              <g key={`${lbl}-${idx}`}>
                 <line
                   x1={x}
                   y1={15}
@@ -238,33 +267,36 @@ export default function WarehouseLineChart() {
           {/* Line 1: Yellow - "Warehouse load" */}
           {visibleSeries.warehouseLoad && (
             <path
-              d="M 50,164 Q 75,100 97,105 T 144,115 T 191,135 T 238,148 T 285,160 T 332,168 T 379,155 T 426,148 T 473,135 T 520,105"
+              d={currentConfig.warehouseLoadPath}
               fill="none"
               stroke="#F59E0B"
               strokeWidth="2.4"
               strokeLinecap="round"
+              style={{ transition: "d 0.3s ease" }}
             />
           )}
 
           {/* Line 2: Green - "Product deliveries" */}
           {visibleSeries.productDeliveries && (
             <path
-              d="M 50,164 Q 75,160 97,150 T 144,160 T 191,150 T 238,140 T 285,130 T 332,145 T 379,135 T 426,130 T 473,115 T 520,135"
+              d={currentConfig.productDeliveriesPath}
               fill="none"
               stroke="#10B981"
               strokeWidth="2.4"
               strokeLinecap="round"
+              style={{ transition: "d 0.3s ease" }}
             />
           )}
 
           {/* Line 3: Red - "Raw material" */}
           {visibleSeries.rawMaterial && (
             <path
-              d="M 50,164 Q 75,135 97,140 T 144,155 T 191,145 T 238,130 T 285,115 T 332,140 T 379,150 T 426,155 T 473,110 T 520,100"
+              d={currentConfig.rawMaterialPath}
               fill="none"
               stroke="#EF4444"
               strokeWidth="2.4"
               strokeLinecap="round"
+              style={{ transition: "d 0.3s ease" }}
             />
           )}
         </svg>
