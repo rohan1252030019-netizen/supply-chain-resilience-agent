@@ -63,16 +63,6 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    try:
-        ping_mongo()
-        db = get_mongo_db()
-        seed_run(db)
-        db["audit_logs"].update_many(
-            {"timestamp": {"$exists": False}},
-            {"$set": {"timestamp": datetime.now(timezone.utc)}},
-        )
-    except Exception as err:
-        logger.warning(f"[Startup Warning] Database initialization skipped or non-fatal: {err}")
     yield
 
 
