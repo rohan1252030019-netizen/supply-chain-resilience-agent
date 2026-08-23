@@ -97,7 +97,7 @@ DEMO_PRODUCTION_ORDERS = [
 
 @router.get("/", response_model=list[ProductionOrderOut])
 def list_production_orders(
-    repo: ProductionOrderRepository = Depends(get_repo),
+    db: Database = Depends(get_mongo_db),
     current_user: dict = Depends(require_admin_or_user),
 ):
     """
@@ -107,11 +107,15 @@ def list_production_orders(
     """
     results = []
     try:
+        repo = ProductionOrderRepository(db)
         results = repo.list_all()
     except BaseException:
         results = DEMO_PRODUCTION_ORDERS
 
-    return results if results else DEMO_PRODUCTION_ORDERS
+    if not results:
+        results = DEMO_PRODUCTION_ORDERS
+
+    return results
 
 
 @router.get("/{production_id}", response_model=ProductionOrderOut)
