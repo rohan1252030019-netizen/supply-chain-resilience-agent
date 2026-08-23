@@ -8,15 +8,20 @@
  * event if a 401 is encountered.
  */
 
-const BASE_URL =
-  import.meta.env.VITE_API_BASE_URL ||
-  (typeof window !== "undefined" &&
-  window.location.hostname !== "localhost" &&
-  window.location.hostname !== "127.0.0.1"
-    ? (window.location.hostname.includes("quick-pasteur")
-        ? window.location.origin
-        : "https://scda-fastapi-backend.onrender.com")
-    : "http://localhost:8000");
+export function getApiBaseUrl() {
+  return (
+    import.meta.env.VITE_API_BASE_URL ||
+    (typeof window !== "undefined" &&
+    window.location.hostname !== "localhost" &&
+    window.location.hostname !== "127.0.0.1"
+      ? (window.location.hostname.includes("quick-pasteur")
+          ? window.location.origin
+          : "https://scda-fastapi-backend.onrender.com")
+      : "http://localhost:8000")
+  );
+}
+
+const BASE_URL = getApiBaseUrl();
 
 export async function apiRequest(path, options = {}) {
   const token = localStorage.getItem("scda_auth_token");

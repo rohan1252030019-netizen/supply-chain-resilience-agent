@@ -4,9 +4,10 @@
  * Authentication API calls: login, register, logout, me, forgot/reset password.
  */
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+import { getApiBaseUrl } from "./client.js";
 
 async function request(path, options = {}, token = null) {
+  const BASE_URL = getApiBaseUrl();
   const headers = { "Content-Type": "application/json" };
   if (token) headers["Authorization"] = `Bearer ${token}`;
 

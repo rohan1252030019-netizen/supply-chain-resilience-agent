@@ -1,6 +1,7 @@
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+import { getApiBaseUrl } from "./client.js";
 
 export async function fetchReportPreview({ incidentId, startDate, endDate, includeDiagnostics = false, orderId, supplierId } = {}) {
+  const BASE_URL = getApiBaseUrl();
   const params = new URLSearchParams();
   if (incidentId) params.set("incident_id", incidentId);
   if (orderId) params.set("order_id", orderId);
@@ -24,6 +25,7 @@ export async function fetchReportPreview({ incidentId, startDate, endDate, inclu
 }
 
 export async function downloadOperatorReport({ incidentId, startDate, endDate, includeDiagnostics = false, orderId, supplierId } = {}) {
+  const BASE_URL = getApiBaseUrl();
   const params = new URLSearchParams();
   if (incidentId) params.set("incident_id", incidentId);
   if (orderId) params.set("order_id", orderId);
