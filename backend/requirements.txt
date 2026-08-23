@@ -1,23 +1,20 @@
 # ==============================================================
 # backend/requirements.txt
-# Owner: Developer 2 (Backend / Simulation)
-# NOTE: No LLM SDK needed here — all LLM calls are made inside the n8n
-#       Groq AI Agent node. This backend is a pure CRUD / data API.
+# Supply Chain Resilience Agent — Backend API Dependencies
 # ==============================================================
 
-fastapi==0.115.0
-uvicorn[standard]==0.30.6
-pymongo==4.9.0
-pydantic==2.9.2
-pydantic[email]>=2.0.0
-pydantic-settings==2.5.2
-python-dotenv==1.0.1
-httpx==0.27.2
+fastapi>=0.115.0
+uvicorn[standard]>=0.30.0
+pymongo>=4.8.0
+pydantic>=2.9.0
+pydantic-settings>=2.5.0
+python-dotenv>=1.0.0
+httpx>=0.27.0
 
 # PDF report generation
-fpdf2==2.7.9
+fpdf2>=2.7.0
 
-# Email validation (required by pydantic EmailStr in app/schemas/config.py)
+# Email validation
 email-validator>=2.0.0
 
 # Authentication & Security
@@ -27,6 +24,6 @@ PyJWT>=2.8.0
 motor>=3.0.0
 
 # Testing
-pytest==8.3.3
-pytest-asyncio==0.24.0
-mongomock==4.3.0
+pytest>=8.0.0
+pytest-asyncio>=0.24.0
+mongomock>=4.3.0
