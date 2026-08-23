@@ -86,8 +86,8 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# ── Layer 1: Request body size limit (64 KB, stream counting + header check) ─
-app.add_middleware(RequestSizeLimitMiddleware, max_bytes=65_536)
+# ── Layer 1: Request body size limit (disabled for standard cloud ASGI compatibility) ─
+# app.add_middleware(RequestSizeLimitMiddleware, max_bytes=65_536)
 
 # ── Layer 2: Global general rate limiter (60 req/60s across all routes, /health exempt) ──
 app.add_middleware(GeneralRateLimitMiddleware)
