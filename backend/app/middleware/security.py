@@ -48,12 +48,11 @@ SECURITY_HEADERS = {
     "Server": "scda",
     # Content Security Policy — restricts what sources the browser will load.
     "Content-Security-Policy": (
-        "default-src 'self'; "
-        "connect-src 'self' http://localhost:8000 http://localhost:5173; "
-        "script-src 'self' 'unsafe-inline'; "   # Swagger UI needs unsafe-inline
-        "style-src 'self' 'unsafe-inline'; "
-        "img-src 'self' data:; "
-        "frame-ancestors 'none';"
+        "default-src 'self' https: data: 'unsafe-inline' 'unsafe-eval'; "
+        "connect-src *; "
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; "
+        "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
+        "img-src 'self' data: https:; "
     ),
     # HTTP Strict Transport Security — forces HTTPS in production.
     "Strict-Transport-Security": "max-age=31536000",
