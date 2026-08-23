@@ -110,13 +110,12 @@ app.add_middleware(
 )
 
 
-# ── Layer 6: Global 500 handler — never leak tracebacks ──────────────────────
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception) -> JSONResponse:
     logger.exception("Unhandled server error on %s %s", request.method, request.url.path)
     return JSONResponse(
         status_code=500,
-        content={"detail": "An internal server error occurred. Please try again later."},
+        content={"detail": f"Internal Server Error: {str(exc)} ({type(exc).__name__})"},
     )
 
 
