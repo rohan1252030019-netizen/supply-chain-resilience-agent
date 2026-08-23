@@ -11,8 +11,14 @@ from app.config import settings
 
 client = MongoClient(
     settings.MONGO_URI,
-    serverSelectionTimeoutMS=300,
+    serverSelectionTimeoutMS=2000,
+    connectTimeoutMS=2000,
+    socketTimeoutMS=5000,
+    maxPoolSize=50,
+    minPoolSize=5,
+    maxIdleTimeMS=45000,
     tlsAllowInvalidCertificates=True,
+    retryWrites=True,
 )
 db = client[settings.MONGO_DB_NAME]
 

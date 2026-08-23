@@ -39,6 +39,7 @@ import logging
 from datetime import datetime, timezone
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 
@@ -83,6 +84,9 @@ app = FastAPI(
     openapi_url="/openapi.json" if settings.DOCS_ENABLED else None,
     lifespan=lifespan,
 )
+
+# ── Response Payload Compression ──────────────────────────────────────────
+app.add_middleware(GZipMiddleware, minimum_size=500)
 
 # ── Layer 1: Request body size limit (disabled for standard cloud ASGI compatibility) ─
 # app.add_middleware(RequestSizeLimitMiddleware, max_bytes=65_536)
