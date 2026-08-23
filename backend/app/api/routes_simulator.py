@@ -3,6 +3,13 @@ app/api/routes_simulator.py
 Owner: Developer 2 (Backend / Simulation)
 """
 
+import sys
+import os
+
+_backend_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+if _backend_dir not in sys.path:
+    sys.path.insert(0, _backend_dir)
+
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, ConfigDict, field_validator
 from pymongo.database import Database

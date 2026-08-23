@@ -18,6 +18,13 @@ SECURITY ADDITIONS (Dev2):
   - Input validators on TriggerRequest and ApprovalDecision
 """
 
+import sys
+import os
+
+_backend_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+if _backend_dir not in sys.path:
+    sys.path.insert(0, _backend_dir)
+
 from fastapi import APIRouter, Depends, HTTPException, Path, Request
 from pydantic import BaseModel, ConfigDict, field_validator, Field
 from datetime import datetime, timezone
